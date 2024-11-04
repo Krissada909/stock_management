@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #eef2f3; /* สีพื้นหลัง */
+            font-family: 'Arial', sans-serif; /* เปลี่ยนฟอนต์ */
+        }
+        h1 {
+            margin: 30px 0;
+            color: #343a40;
+            font-weight: bold; /* ตัวหนา */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* เงา */
+        }
+        .container {
+        padding: 0; /* ลบ padding */
+        max-width: none; /* ไม่กำหนดความกว้างสูงสุด */
+        margin: 0; /* ลบ margin เพื่อให้ชิดซ้ายสุด */
+    }
+        .table {
+            background-color: white;
+            width: calc(100% - 40px); /* ปรับให้ตารางมีความกว้างน้อยกว่า 100% ตามจำนวนที่ต้องการ */
+            margin-left: 20px; /* จัดตำแหน่งไปทางซ้าย */
+            margin-right: 20px; /* ไม่มี margin ขวา */
+            border-collapse: collapse; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+            border-radius: 8px; 
+            overflow: hidden; 
+        }
+        th, td {
+            text-align: left;
+            padding: 12px; /* ระยะห่างในเซลล์ */
+        }
+        .thead-light th {
+            background-color: #007bff; /* สีพื้นหลังของหัวตาราง */
+            color: white; /* สีตัวอักษร */
+            font-weight: bold; /* ตัวหนา */
+        }
+        .btn-add {
+            margin-bottom: 15px;
+        }
+        .img-thumbnail {
+            width: 100px;
+            height: auto;
+            border-radius: 4px; /* มุมโค้ง */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* เงา */
+        }
+        .modal-content {
+            border-radius: 8px; /* มุมโค้ง */
+        }
+        .modal-header {
+            background-color: #007bff; /* สีหัวโมดัล */
+            color: white; /* สีตัวอักษร */
+        }
+        .modal-footer .btn {
+            border-radius: 5px; /* มุมโค้ง */
+        }
+        .btn-danger {
+            margin-right: 20px; /* ไม่มี margin ขวา */
+            background-color: #dc3545; /* สีพื้นหลังปุ่มลบ */
+            border-color: #dc3545; /* สีขอบ */
+        }
+        .btn-danger:hover {
+            background-color: #c82333; /* สีพื้นหลังเมื่อเอาเมาส์ไปอยู่บน */
+        }
+        .btn-primary {
+            margin-left: 20px; /* จัดตำแหน่งไปทางซ้าย */
+            background-color: #007bff; /* สีพื้นหลังปุ่มเพิ่ม */
+            border-color: #007bff; /* สีขอบ */
+        }
+        .btn-primary:hover {
+            
+            background-color: #0056b3; /* สีพื้นหลังเมื่อเอาเมาส์ไปอยู่บน */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center">รายการ PreOrder Kuma Japan </h1>
+        <form method="POST" action="{% url 'sell_products' %}">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <a href="{% url 'add_product' %}" class="btn btn-primary">เพิ่มสินค้า</a>
+                <div class="ml-auto d-flex">
+                    <button type="button" class="btn btn-danger mr-2" data-toggle="modal" data-target="#sellModal">ตัดสต็อกสินค้า</button>
+                    <button type="submit" formaction="{% url 'delete_selected_products' %}" class="btn btn-danger" onclick="return confirm('คุณแน่ใจว่าต้องการลบสินค้าที่เลือก?');">ลบรายการที่เลือก</button>
+                </div>
+            </div>
+            <table class="table table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>เลือก</th>
+                        <th>ลำดับ</th>
+                        <th>ชื่อสินค้า</th>
+                        <th>จำนวน</th>
+                        <th>ราคา</th>
+                        <th>น้ำหนัก/Kg.</th>
+                        <th>ราคารวม</th>
+                        <th>ภาพ</th>
+                        <th>Website</th>
+                        <th>วันที่เพิ่ม</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if products %}
+                        {% for product in products %}
+                            <tr>
+                                <td><input type="checkbox" name="product_ids" value="{{ product.order }}"></td>
+                                <td>{{ product.order }}</td>
+                                <td>{{ product.name }}</td>
+                                <td>{{ product.quantity }}</td>
+                                <td>{{ product.price }}</td>
+                                <td>{{ product.weight }}</td>
+                                <td>{{ product.total_price }}</td>
+                              
+                                <td>
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail" onerror="this.onerror=null; this.src='/media/default_image.png';">
+                                    {% else %}
+                                        ไม่มีภาพ
+                                    {% endif %}
+                                </td>
+                                <td><a href="{{ product.website_url }}" class="btn btn-secondary">Website</a></td>
+                                <td>{{ product.date_added|date:"d-m-Y" }}</td>
+                                <td>
+                                    <a href="{% url 'edit_product' product.order %}" class="btn btn-warning">แก้ไข</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="10" class="text-center">ไม่มีข้อมูลสินค้า</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <div class="modal fade" id="sellModal" tabindex="-1" role="dialog" aria-labelledby="sellModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="sellModalLabel">ระบุจำนวนที่จะตัดสต็อก</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="quantity-input-container"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
+                            <button type="submit" class="btn btn-danger">ยืนยันการตัดสต็อก</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.querySelector('[data-target="#sellModal"]').addEventListener('click', function() {
+            const selectedProducts = document.querySelectorAll('input[name="product_ids"]:checked');
+            const container = document.getElementById('quantity-input-container');
+            container.innerHTML = ''; // ล้างข้อมูลเก่า
+        
+            selectedProducts.forEach((product) => {
+                const orderNumber = product.value;
+                const input = document.createElement('div');
+                input.innerHTML = `
+                    <label for="quantity_${orderNumber}">จำนวนที่จะตัดรายการที่ ${orderNumber}: </label>
+                    <input type="number" id="quantity_${orderNumber}" name="quantity_to_sell_${orderNumber}" min="1" value="1" required>
+                `;
+                container.appendChild(input);
+            });
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

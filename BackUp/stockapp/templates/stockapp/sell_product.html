@@ -1,0 +1,7 @@
+<h2>Sell {{ product.name }}</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="quantity">Quantity Sold:</label>
+    <input type="number" name="quantity" required>
+    <button type="submit">Sell Product</button>
+</form>

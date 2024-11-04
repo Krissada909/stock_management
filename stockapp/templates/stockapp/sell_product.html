@@ -1,0 +1,12 @@
+<form method="POST" action="{% url 'sell_products' %}">
+    {% csrf_token %}
+    {% for product in products %}
+        <div>
+            <label>{{ product.name }}</label>
+            <input type="checkbox" name="product_ids" value="{{ product.order }}">
+            <label for="quantity_to_sell">จำนวนที่ต้องการขาย:</label>
+            <input type="number" name="quantity_to_sell_{{ product.order }}" min="1" max="{{ product.quantity }}" value="1">
+        </div>
+    {% endfor %}
+    <button type="submit">ขายสินค้า</button>
+</form>
